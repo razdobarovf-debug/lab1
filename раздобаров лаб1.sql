@@ -1,11 +1,11 @@
--- Лабораторная работа №1. Вариант 31.
+-- ЛАБОРАТОРНАЯ №1 (Создание таблиц и данных)
 
--- Удаление старых таблиц (если были)
+-- 1. Удаляем старые таблицы (чтобы начать с чистого листа)
 DROP TABLE IF EXISTS Paths_Previous_Day;
 DROP TABLE IF EXISTS Path_Occupancy;
 DROP TABLE IF EXISTS Trams;
 
--- 1. Создание главной таблицы Трамваи
+-- 2. Создаем главную таблицу Трамваи (Первичный ключ: tram_id)
 CREATE TABLE Trams (
     tram_id INT PRIMARY KEY,
     depot_number INT NOT NULL,
@@ -19,18 +19,20 @@ CREATE TABLE Trams (
     sections INT NOT NULL
 );
 
--- 2. Создание дочерней таблицы Занятость путей (с ключом на депо)
+-- 3. Создаем дочернюю таблицу Занятость путей
+-- СОСТАВНОЙ ПЕРВИЧНЫЙ КЛЮЧ: Депо + Номер пути + Время заезда
 CREATE TABLE Path_Occupancy (
-    depot_number INT PRIMARY KEY,
+    depot_number INT NOT NULL,
     path_number INT NOT NULL,
     entry_datetime TIMESTAMP NOT NULL,
     tram_id INT NOT NULL,
     exit_datetime TIMESTAMP,
     additional_info TEXT,
+    PRIMARY KEY (depot_number, path_number, entry_datetime),
     FOREIGN KEY (tram_id) REFERENCES Trams (tram_id) ON DELETE CASCADE
 );
 
--- 3. Заполнение Трамваев
+-- 4. Заполняем Трамваи (10 штук)
 INSERT INTO Trams (tram_id, depot_number, model, year_built, last_overhaul_date, total_seats, seating_capacity, length_meters, bogies, sections) VALUES
 (1001, 1, '71-605', 2010, '2020-05-15', 150, 40, 15.50, 2, 1),
 (1002, 1, '71-619', 2015, NULL, 200, 50, 27.50, 4, 2),
@@ -43,8 +45,17 @@ INSERT INTO Trams (tram_id, depot_number, model, year_built, last_overhaul_date,
 (1009, 3, 'T3-T3', 2011, '2021-09-01', 240, 60, 28.00, 4, 2),
 (1010, 1, 'LVS-2005', 2020, NULL, 300, 80, 35.00, 6, 3);
 
--- 4. Заполнение Занятости путей
+-- 5. Заполняем Занятость путей (10 штук)
 INSERT INTO Path_Occupancy (depot_number, path_number, entry_datetime, exit_datetime, tram_id, additional_info) VALUES
-(1, 101, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1002, 'Утренний выезд'),
+(1, 101, CURRENT_DATE - INTERVAL '2 days', CURRENT_DATE - INTERVAL '1 day', 1001, 'Плановый выезд'),
+(1, 102, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1002, 'Утренний выезд'),
 (2, 201, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1004, 'Выезд по маршруту'),
-(3, 301, CURRENT_DATE - INTERVAL '3 days', CURRENT_DATE - INTERVAL '2 days', 1006, 'Экскурсия'); 
+(2, 202, CURRENT_DATE, NULL, 1003, 'На ремонте'),
+(3, 301, CURRENT_DATE - INTERVAL '3 days', CURRENT_DATE - INTERVAL '2 days', 1006, 'Экскурсия'),
+(1, 103, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1007, 'Замена вагона'),
+(2, 203, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1009, 'Ночной выезд'),
+(3, 302, CURRENT_DATE - INTERVAL '5 days', CURRENT_DATE - INTERVAL '4 days', 1005, 'Техосмотр'),
+(1, 104, CURRENT_DATE, NULL, 1010, 'Сломался пантограф'),
+(2, 204, CURRENT_DATE - INTERVAL '1 day', CURRENT_DATE, 1008, 'Обычный выезд');
+
+
